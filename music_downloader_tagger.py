@@ -11,9 +11,15 @@ def clean_folder():
         os.mkdir("downloads")
 
 def download_audio(url):
-    ydl = pytube.YouTube(url)
-    out_file = ydl.streams.get_audio_only().download("downloads")
-    audio_file = f"downloads\\{ydl.title}.mp3"
+    default_file = "downloads\\Video Not Available.mp4"
+    out_file = default_file
+    while os.path.relpath(out_file) == default_file:
+        if os.path.exists(out_file):
+            os.remove(out_file)
+        ydl = pytube.YouTube(url)
+        out_file = ydl.streams.get_audio_only().download("downloads")
+
+    audio_file = f"{out_file.split('.')[0]}.mp3"
     subprocess.run(['ffmpeg', '-i', out_file, '-b:a', '192K', audio_file, '-hide_banner', '-loglevel', 'quiet'])
     os.remove(out_file)
     return audio_file
@@ -21,11 +27,13 @@ def download_audio(url):
 def recognise_song(file_path):
     metadata = {}
     with open(file_path, 'rb') as mp3_file:
-        shazam = next(Shazam(mp3_file.read()).recognizeSong())[1]
-        if "track" in shazam:
-            recognised = shazam["track"]
+        shazam = Shazam(mp3_file.read())
+        recognised = next(shazam.recognizeSong())[1]
+        
+        if "track" in recognised:
+            recognised = recognised["track"]
         else:
-            print(f"ERROR\n{shazam}")
+            print(f"\u001b[31mERROR\n{recognised}")
             return
         
         metadata['title'] = urllib.parse.unquote_plus(recognised["urlparams"]["{tracktitle}"])
@@ -44,6 +52,7 @@ def modify_file(file_path, metadata):
     song['albumartist'] = metadata['artist']
     song['artwork'] = requests.get(metadata['imageURL']).content
 
+    # SAVE IMAGE LOCALLY
     # with open(f"{new_file_name}.jpg", "wb") as image:
     #     image.write(requests.get(metadata['imageURL']).content)
     
@@ -67,4 +76,4 @@ for url in url_list:
         print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
         modify_file(audio_file_path, metadata)
     else:
-        print("\u001b[31mNope, Skipped!\u001b[0m")
+        print("Nope, Skipped!\u001b[0m")
