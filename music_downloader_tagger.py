@@ -1,5 +1,5 @@
 import pytube, subprocess
-import os, shutil, sys
+import os, shutil, sys, argparse
 from ShazamAPI import Shazam
 import urllib
 import music_tag
@@ -42,33 +42,60 @@ def recognise_song(file_path):
     
     return metadata
 
-def modify_file(file_path, metadata):
-    new_file_name = f"downloads\\{metadata['artist']} - {metadata['title']}"
+illegal_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+def validate_filename(filename):
+    for c in filename:
+        if c in illegal_chars:
+            filename = filename.replace(c, ";")
+    return filename
 
-    os.rename(file_path, f"{new_file_name}.mp3")
-    song = music_tag.load_file(f"{new_file_name}.mp3")
+def modify_file(file_path, metadata):
+    new_filename = validate_filename(f"{metadata['artist']} - {metadata['title']}")
+    new_filename = f"downloads\\{new_filename}"
+
+    os.rename(file_path, f"{new_filename}.mp3")
+    song = music_tag.load_file(f"{new_filename}.mp3")
     song['tracktitle'] = metadata['title']
     song['artist'] = metadata['artist']
     song['albumartist'] = metadata['artist']
     song['artwork'] = requests.get(metadata['imageURL']).content
 
     # SAVE IMAGE LOCALLY
-    # with open(f"{new_file_name}.jpg", "wb") as image:
+    # with open(f"{new_filename}.jpg", "wb") as image:
     #     image.write(requests.get(metadata['imageURL']).content)
     
     song.save()
 
-url_list = []
-clean_folder()
-while True:
-    url = input("Enter a URL: ")
-    if url == "":
-        break
-    
-    url_list.append(url)
+parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
+parser.add_argument("-c", "--clean", help="Set clean downloads folder to True", action="store_true")
+parser.add_argument("-f", "--file", help="Pass in text file of URLs", type=str)
 
-print()
+args = parser.parse_args()
+
+url_list = []
+
+if (args.clean):
+    print("Cleaning downloads...")
+    clean_folder()
+
+if (args.file):
+    with open(args.file) as urls_file:
+        print("Reading URLs...")
+        for line in urls_file.readlines():
+            url = line.replace("\n", "")
+            print(f"\t{url}")
+            url_list.append(url)
+else:
+    while True:
+        url = input("Enter a URL: ")
+        if url == "":
+            break
+        url_list.append(url)
+        
+
 # Download and modify metadata
+# OPTIMISE!!
+print()
 for url in url_list:
     audio_file_path = download_audio(url)
     metadata = recognise_song(audio_file_path)
