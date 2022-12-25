@@ -60,11 +60,8 @@ def modify_file(file_path, metadata):
     song['albumartist'] = metadata['artist']
     song['artwork'] = requests.get(metadata['imageURL']).content
 
-    # SAVE IMAGE LOCALLY
-    # with open(f"{new_filename}.jpg", "wb") as image:
-    #     image.write(requests.get(metadata['imageURL']).content)
-    
     song.save()
+
 
 parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
 parser.add_argument("-c", "--clean", help="Set clean downloads folder to True", action="store_true")
