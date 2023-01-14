@@ -16,7 +16,7 @@ def download_audio(url):
     while os.path.relpath(out_file) == default_file:
         if os.path.exists(out_file):
             os.remove(out_file)
-        ydl = pytube.YouTube(url)
+        ydl = pytube.YouTube(url, use_oauth=True)
         out_file = ydl.streams.get_audio_only().download("downloads")
 
     audio_file = f"{out_file.split('.')[0]}.mp3"
