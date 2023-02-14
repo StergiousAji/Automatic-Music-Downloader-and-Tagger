@@ -38,7 +38,8 @@ def recognise_song(file_path):
         
         metadata['title'] = urllib.parse.unquote_plus(recognised["urlparams"]["{tracktitle}"])
         metadata['artist'] = urllib.parse.unquote_plus(recognised["urlparams"]["{trackartist}"])
-        metadata['imageURL'] = recognised["images"]["coverart"]
+        if "images" in recognised:
+            metadata['imageURL'] = recognised["images"]["coverart"]
     
     return metadata
 
@@ -58,7 +59,8 @@ def modify_file(file_path, metadata):
     song['tracktitle'] = metadata['title']
     song['artist'] = metadata['artist']
     song['albumartist'] = metadata['artist']
-    song['artwork'] = requests.get(metadata['imageURL']).content
+    if "imageURL" in metadata:
+        song['artwork'] = requests.get(metadata['imageURL']).content
 
     song.save()
 
