@@ -54,15 +54,18 @@ def modify_file(file_path, metadata):
     new_filename = validate_filename(f"{metadata['artist']} - {metadata['title']}")
     new_filename = f"downloads\\{new_filename}"
 
-    os.rename(file_path, f"{new_filename}.mp3")
-    song = music_tag.load_file(f"{new_filename}.mp3")
-    song['tracktitle'] = metadata['title']
-    song['artist'] = metadata['artist']
-    song['albumartist'] = metadata['artist']
-    if "imageURL" in metadata:
-        song['artwork'] = requests.get(metadata['imageURL']).content
+    if not os.path.exists(new_filename):
+        os.rename(file_path, f"{new_filename}.mp3")
+        song = music_tag.load_file(f"{new_filename}.mp3")
+        song['tracktitle'] = metadata['title']
+        song['artist'] = metadata['artist']
+        song['albumartist'] = metadata['artist']
+        if "imageURL" in metadata:
+            song['artwork'] = requests.get(metadata['imageURL']).content
 
-    song.save()
+        song.save()
+    else:
+        print(f"\u001b[31mFile '{new_filename}' already exists! Skipped\u001b[0m")
 
 
 parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
