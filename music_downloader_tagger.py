@@ -1,9 +1,13 @@
 import pytube, subprocess
-import os, shutil, sys, argparse
+import os, shutil, argparse
 from ShazamAPI import Shazam
 import urllib
 import music_tag
 import requests
+
+import youtube_dl
+
+from spotify_yt_scraper import find_playlist, scrape_song_info, search_youtube
 
 def clean_folder():
     if "downloads" in os.listdir():
@@ -16,13 +20,25 @@ def download_audio(url):
     while os.path.relpath(out_file) == default_file:
         if os.path.exists(out_file):
             os.remove(out_file)
-        ydl = pytube.YouTube(url, use_oauth=True)
+        ydl = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
         out_file = ydl.streams.get_audio_only().download("downloads")
 
     audio_file = f"{out_file.split('.')[0]}.mp3"
     subprocess.run(['ffmpeg', '-i', out_file, '-b:a', '192K', audio_file, '-hide_banner', '-loglevel', 'quiet'])
     os.remove(out_file)
     return audio_file
+
+def download_audio_YDL(url):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
 
 def recognise_song(file_path):
     metadata = {}
@@ -71,38 +87,45 @@ def modify_file(file_path, metadata):
 parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
 parser.add_argument("-c", "--clean", help="Set clean downloads folder to True", action="store_true")
 parser.add_argument("-f", "--file", help="Pass in text file of URLs", type=str)
+parser.add_argument("-s", "--spotify", help="Scrape songs from Spotify", action="store_true")
 
 args = parser.parse_args()
 
-url_list = []
+if __name__ == "__main__":
+    url_list = []
 
-if (args.clean):
-    print("Cleaning downloads...")
-    clean_folder()
+    if (args.clean):
+        print("Cleaning downloads...")
+        clean_folder()
 
-if (args.file):
-    with open(args.file) as urls_file:
-        print("Reading URLs...")
-        for line in urls_file.readlines():
-            url = line.replace("\n", "")
-            print(f"\t{url}")
-            url_list.append(url)
-else:
-    while True:
-        url = input("Enter a URL: ")
-        if url == "":
-            break
-        url_list.append(url)
-        
-
-# Download and modify metadata
-# OPTIMISE!!
-print()
-for url in url_list:
-    audio_file_path = download_audio(url)
-    metadata = recognise_song(audio_file_path)
-    if metadata:
-        print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
-        modify_file(audio_file_path, metadata)
+    if (args.file):
+        with open(args.file) as urls_file:
+            print("Reading URLs...")
+            for line in urls_file.readlines():
+                url = line.replace("\n", "")
+                print(f"\t{url}")
+                url_list.append(url)
+    elif (args.spotify):
+        pl_new_songs = find_playlist("new-songs")
+        songs = scrape_song_info(pl_new_songs)
+        print()
+        url_list = search_youtube(songs)
     else:
-        print("Nope, Skipped!\u001b[0m")
+        while True:
+            url = input("Enter a URL: ")
+            if url == "":
+                break
+            url_list.append(url)
+        
+    # Download and modify metadata
+    # OPTIMISE!!
+    print()
+    for url in url_list:
+        audio_file_path = download_audio(url)
+        # audio_file_path = download_audio_YDL(url)
+        metadata = recognise_song(audio_file_path)
+        if metadata:
+            print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
+            modify_file(audio_file_path, metadata)
+        else:
+            print("Nope, Skipped!\u001b[0m")
