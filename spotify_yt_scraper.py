@@ -61,7 +61,7 @@ def search_youtube(songs):
             driver.get(video.watch_url)
             duration = driver.find_element(By.CLASS_NAME, "ytp-time-duration")
             
-            if time_to_seconds(duration.text) - song['duration'] < 5:
+            if abs(time_to_seconds(duration.text) - song['duration']) < 5:
                 url_list.append(video.watch_url)
                 break
     
