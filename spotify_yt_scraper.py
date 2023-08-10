@@ -23,7 +23,7 @@ def find_playlist(playlist_name):
                 return spotify.playlist_items(playlist_id=playlist['uri'])
 
 def seconds_to_time(seconds):
-    return f"{int(seconds // 60)}:{seconds % 60}"
+    return f"{int(seconds // 60)}:{(seconds % 60):05.2f}"
 
 def time_to_seconds(time):
     time_split = time.split(':')
@@ -34,7 +34,7 @@ def scrape_song_info(playlist):
     for i, song in enumerate(playlist['items']):
         artist = song['track']['album']['artists'][0]['name']
         track = song['track']['name']
-        duration = int(song['track']['duration_ms']) / 1000
+        duration = int(song['track']['duration_ms']) / 1000.0
         songs.append({"name": f"{artist} {track}", "duration": duration})
         print(f"{i+1}. {songs[i]['name']} ({seconds_to_time(duration)}))")
     
@@ -61,7 +61,7 @@ def search_youtube(songs):
             driver.get(video.watch_url)
             duration = driver.find_element(By.CLASS_NAME, "ytp-time-duration")
             
-            if abs(time_to_seconds(duration.text) - song['duration']) < 5:
+            if abs(time_to_seconds(duration.text) - song['duration']) < 1.5:
                 url_list.append(video.watch_url)
                 break
     
