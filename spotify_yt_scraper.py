@@ -44,9 +44,9 @@ def scrape_song_info(playlist):
 chromeOptions = webdriver.ChromeOptions()
 chromeOptions.add_argument('headless')
 
-# def write_url(url):
-#     with open("urls.txt", 'a') as urls_file:
-#         urls_file.write(f"{url}\n")
+def write_url(url):
+    with open("urls.txt", 'a') as urls_file:
+        urls_file.write(f"{url}\n")
 
 def search_youtube(songs):
     url_list = []
@@ -64,6 +64,7 @@ def search_youtube(songs):
             
             if abs(time_to_seconds(duration.text) - song['duration']) < 1.5:
                 url_list.append(video.watch_url)
+                write_url(video.watch_url)
                 break
     
     return url_list
