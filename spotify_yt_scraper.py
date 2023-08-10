@@ -36,7 +36,7 @@ def scrape_song_info(playlist):
         track = song['track']['name']
         duration = int(song['track']['duration_ms']) / 1000.0
         songs.append({"name": f"{artist} {track}", "duration": duration})
-        print(f"{i+1}. {songs[i]['name']} ({seconds_to_time(duration)}))")
+        print(f"{i+1}. {songs[i]['name']} ({seconds_to_time(duration)})")
     
     return songs
 
@@ -58,6 +58,7 @@ def search_youtube(songs):
         search = pytube.Search(f"{song['name']} audio")
         for video in search.results:
             driver = webdriver.Chrome(options=chromeOptions)
+            print(f"\u001b[32mSearching {video.watch_url}\u001b[0m")
             driver.get(video.watch_url)
             duration = driver.find_element(By.CLASS_NAME, "ytp-time-duration")
             
