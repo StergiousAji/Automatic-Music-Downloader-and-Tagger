@@ -7,6 +7,10 @@ import requests
 
 import youtube_dl
 
+import time
+from selenium import webdriver
+from ytm_automator import scrape_urls
+
 from spotify_yt_scraper import find_playlist, scrape_song_info, search_youtube
 
 def clean_folder():
@@ -83,10 +87,36 @@ def modify_file(file_path, metadata):
     else:
         print(f"\u001b[31mFile '{new_filename}' already exists! Skipped\u001b[0m")
 
+## MOVE ALL THIS SHIT
+chromeOptions = webdriver.ChromeOptions()
+prefs = {"download.default_directory" : "C:\\Users\\jovin\\Documents\\Automatic-Music-Downloader-and-Tagger\\downloads"}
+chromeOptions.add_experimental_option("prefs",prefs)
+chromeOptions.add_argument('headless')
+
+def download_mp3():
+    print("Downloading...")
+    with open("mp3_urls.txt", "r") as file:
+        for url in file.readlines():
+            driver = webdriver.Chrome(options=chromeOptions)
+            driver.get(url)
+            time.sleep(15)
+            # download_urls.append(url)
+
+            # Modify most recently created audio file
+            audio_file_path = f"downloads\\{max([f for f in os.scandir('downloads')], key=lambda x: x.stat().st_mtime).name}"
+            print(audio_file_path)
+            metadata = recognise_song(audio_file_path)
+            if metadata:
+                print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
+                modify_file(audio_file_path, metadata)
+            else:
+                print("Nope, Skipped!\u001b[0m")
+
 
 parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
 parser.add_argument("-c", "--clean", help="Set clean downloads folder to True", action="store_true")
 parser.add_argument("-f", "--file", help="Pass in text file of URLs", type=str)
+parser.add_argument("-y", "--ytm", help="Use YouTubeToMP3 to download songs", action="store_true")
 parser.add_argument("-s", "--spotify", help="Scrape songs from Spotify", action="store_true")
 
 args = parser.parse_args()
@@ -120,12 +150,16 @@ if __name__ == "__main__":
     # Download and modify metadata
     # OPTIMISE!!
     print()
-    for url in url_list:
-        audio_file_path = download_audio(url)
-        # audio_file_path = download_audio_YDL(url)
-        metadata = recognise_song(audio_file_path)
-        if metadata:
-            print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
-            modify_file(audio_file_path, metadata)
-        else:
-            print("Nope, Skipped!\u001b[0m")
+    if (args.ytm):
+        scrape_urls(url_list)
+        download_mp3()
+    else:
+        for url in url_list:
+            audio_file_path = download_audio(url)
+            # audio_file_path = download_audio_YDL(url)
+            metadata = recognise_song(audio_file_path)
+            if metadata:
+                print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
+                modify_file(audio_file_path, metadata)
+            else:
+                print("Nope, Skipped!\u001b[0m")

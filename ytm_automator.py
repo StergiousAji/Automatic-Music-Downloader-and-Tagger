@@ -6,10 +6,9 @@ import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from music_downloader_tagger import clean_folder
-from music_downloader_tagger import recognise_song
-from music_downloader_tagger import modify_file
-from music_downloader_tagger import url_list
+# from music_downloader_tagger import clean_folder
+# from music_downloader_tagger import recognise_song
+# from music_downloader_tagger import modify_file
 import os
 
 chromeOptions = webdriver.ChromeOptions()
@@ -19,10 +18,10 @@ chromeOptions.add_argument('headless')
 
 download_urls = []
 
-def scrape_urls():
+def scrape_urls(url_list):
     print("Getting Download Links")
     
-    with open("download_urls.txt", "w") as file:
+    with open("mp3_urls.txt", "w") as file:
         driver = webdriver.Chrome(options=chromeOptions)
         for url in url_list:
             # Navigate to website and search URL
@@ -52,26 +51,25 @@ def scrape_urls():
 
     return download_urls
 
-def download_mp3(urls=[]):
-    print("Downloading...")
-    if urls == []:
-        with open("mp3_urls.txt", "r") as file:
-            for url in file.readlines():
-                driver = webdriver.Chrome(options=chromeOptions)
-                driver.get(url)
-                time.sleep(15)
-                download_urls.append(url)
+# def download_mp3():
+#     print("Downloading...")
+#     with open("mp3_urls.txt", "r") as file:
+#         for url in file.readlines():
+#             driver = webdriver.Chrome(options=chromeOptions)
+#             driver.get(url)
+#             time.sleep(15)
+#             download_urls.append(url)
 
-                # Modify most recently created audio file
-                audio_file_path = f"downloads\\{max([f for f in os.scandir('downloads')], key=lambda x: x.stat().st_mtime).name}"
-                print(audio_file_path)
-                metadata = recognise_song(audio_file_path)
-                if metadata:
-                    print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
-                    modify_file(audio_file_path, metadata)
-                else:
-                    print("Nope, Skipped!\u001b[0m")
+#             # Modify most recently created audio file
+#             audio_file_path = f"downloads\\{max([f for f in os.scandir('downloads')], key=lambda x: x.stat().st_mtime).name}"
+#             print(audio_file_path)
+#             metadata = recognise_song(audio_file_path)
+#             if metadata:
+#                 print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
+#                 modify_file(audio_file_path, metadata)
+#             else:
+#                 print("Nope, Skipped!\u001b[0m")
 
 
-scrape_urls()
-download_mp3()
+# scrape_urls()
+# download_mp3()

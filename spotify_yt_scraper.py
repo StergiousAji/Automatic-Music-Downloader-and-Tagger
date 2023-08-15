@@ -7,9 +7,9 @@ from selenium.webdriver.common.by import By
 
 import pytube
 
-os.environ["SPOTIPY_CLIENT_ID"] = "24636ac803284e34931524e761ce9019"
-os.environ["SPOTIPY_CLIENT_SECRET"] = "d23cb9a2f3fb407d80863201b848ea4f"
-os.environ["SPOTIPY_REDIRECT_URI"] = "https://localhost:8888/callback"
+from spotify_dev import setup_spotify
+
+setup_spotify()
 
 scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-modify-private streaming"
 username = "gamer33361"

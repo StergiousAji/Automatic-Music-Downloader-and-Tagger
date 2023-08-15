@@ -2,6 +2,8 @@
 .cache*
 chromedriver.exe
 spotify-dev.txt
+spotify_dev.py
+downloads/*.mp3
 
 # Python # 
 *.py[cod] 
