@@ -51,25 +51,13 @@ def scrape_urls(url_list):
 
     return download_urls
 
-# def download_mp3():
-#     print("Downloading...")
-#     with open("mp3_urls.txt", "r") as file:
-#         for url in file.readlines():
-#             driver = webdriver.Chrome(options=chromeOptions)
-#             driver.get(url)
-#             time.sleep(15)
-#             download_urls.append(url)
-
-#             # Modify most recently created audio file
-#             audio_file_path = f"downloads\\{max([f for f in os.scandir('downloads')], key=lambda x: x.stat().st_mtime).name}"
-#             print(audio_file_path)
-#             metadata = recognise_song(audio_file_path)
-#             if metadata:
-#                 print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
-#                 modify_file(audio_file_path, metadata)
-#             else:
-#                 print("Nope, Skipped!\u001b[0m")
-
+def download_mp3():
+    print("Downloading...")
+    with open("mp3_urls.txt", "r") as file:
+        for url in file.readlines():
+            driver = webdriver.Chrome(options=chromeOptions)
+            driver.get(url)
+            time.sleep(15)
 
 # scrape_urls()
 # download_mp3()
