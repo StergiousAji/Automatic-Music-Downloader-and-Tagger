@@ -91,7 +91,7 @@ def modify_file(file_path, metadata):
 
 parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
 parser.add_argument("-c", "--clean", help="Set clean downloads folder to True", action="store_true")
-# parser.add_argument("-f", "--file", help="Pass in text file of URLs", type=str)
+parser.add_argument("-f", "--file", help="Pass in text file of URLs", action="store_true")
 parser.add_argument("-y", "--ytm", help="Use YouTubeToMP3 to download songs", action="store_true")
 parser.add_argument("-s", "--spotify", help="Scrape songs from Spotify", action="store_true")
 
@@ -105,13 +105,14 @@ if __name__ == "__main__":
         clean_folder()
 
     # Read urls.txt by default
-    with open("urls.txt") as urls_file:
-        print("Reading URLs...")
-        for line in urls_file.readlines():
-            url = line.replace("\n", "")
-            print(f"\t{url}")
-            if url.startswith("https://"):
-                url_list.append(url)
+    if (args.file):
+        with open("urls.txt") as urls_file:
+            print("Reading URLs...")
+            for line in urls_file.readlines():
+                url = line.replace("\n", "")
+                print(f"\t{url}")
+                if url.startswith("https://"):
+                    url_list.append(url)
     
     if (args.spotify):
         pl_new_songs = find_playlist("new-songs")
