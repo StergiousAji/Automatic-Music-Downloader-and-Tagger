@@ -137,11 +137,13 @@ if __name__ == "__main__":
             # audio_file_path = download_audio_YDL(url)
 
     for filename in os.listdir("downloads"):
-        audio_file_path = f"downloads/{filename}"
-        if filename.endswith(".mp3"):  
-            metadata = recognise_song(audio_file_path)
-            if metadata:
-                print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
-                modify_file(audio_file_path, metadata)
-            else:
-                print("Nope, Skipped!\u001b[0m")
+        if filename.endswith(".mp3"):
+            song = music_tag.load_file(f"downloads\\{filename}")
+            if not song["tracktitle"]:
+                audio_file_path = f"downloads/{filename}"
+                metadata = recognise_song(audio_file_path)
+                if metadata:
+                    print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
+                    modify_file(audio_file_path, metadata)
+                else:
+                    print("Nope, Skipped!\u001b[0m")
