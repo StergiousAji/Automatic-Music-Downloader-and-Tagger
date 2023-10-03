@@ -126,9 +126,11 @@ if __name__ == "__main__":
                 break
             if url.startswith("https://"):
                 url_list.append(url)
+            else:
+                print("\u001b[31mInvalid URL submitted!\u001b[0m")
         
     # Download and modify metadata
-    print()
+    print("\n\u001b[95mDownloading...\u001b[0m")
     if (args.ytm):
         scrape_urls(url_list)
         download_mp3()
@@ -147,4 +149,4 @@ if __name__ == "__main__":
                     print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
                     modify_file(audio_file_path, metadata)
                 else:
-                    print("Nope, Skipped!\u001b[0m")
+                    print(f"Nope, Skipped! {audio_file_path}\u001b[0m")
