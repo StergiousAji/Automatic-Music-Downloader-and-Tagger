@@ -19,7 +19,7 @@ chromeOptions.add_argument('headless')
 download_urls = []
 
 def scrape_urls(url_list):
-    print("Getting Download Links")
+    print("\u001b[95mGetting Download Links...\u001b[0m")
     
     with open("mp3_urls.txt", "w") as file:
         driver = webdriver.Chrome(options=chromeOptions)

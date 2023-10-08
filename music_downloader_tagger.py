@@ -101,7 +101,7 @@ if __name__ == "__main__":
     url_list = []
 
     if (args.clean):
-        print("Cleaning downloads...")
+        print("\u001b[32mCleaning downloads...\u001b[0m")
         clean_folder()
 
     # Read urls.txt by default
