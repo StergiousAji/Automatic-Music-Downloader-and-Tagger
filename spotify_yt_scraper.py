@@ -12,7 +12,8 @@ from spotify_dev import setup_spotify
 setup_spotify()
 
 scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-modify-private streaming"
-username = "gamer33361"
+# TODO: Extract credentials into separate file
+username = None
 spotify = spotipy.Spotify(auth=util.prompt_for_user_token(username, scope))
 
 def find_playlist(playlist_name):
