@@ -7,12 +7,12 @@ from selenium.webdriver.common.by import By
 
 import pytube
 
-from spotify_dev import setup_spotify
+from config import setup_spotify, username
 
+# Config includes Spotify credential information
 setup_spotify()
 
 scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-modify-private streaming"
-username = "gamer33361"
 spotify = spotipy.Spotify(auth=util.prompt_for_user_token(username, scope))
 
 def find_playlist(playlist_name):
@@ -51,10 +51,6 @@ def write_url(url):
 def search_youtube(songs):
     url_list = []
     for song in songs:
-        # driver.get(f"https://www.youtube.com/results?search_query={'+'.join(song['name'].split(' '))}+audio")
-        # WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@aria-label='Reject the use of cookies and other data for the purposes described']"))).click()
-        # time.sleep(1000)
-
         search = pytube.Search(f"{song['name']} audio")
         for video in search.results:
             driver = webdriver.Chrome(options=chromeOptions)

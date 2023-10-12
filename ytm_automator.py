@@ -6,14 +6,10 @@ import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# from music_downloader_tagger import clean_folder
-# from music_downloader_tagger import recognise_song
-# from music_downloader_tagger import modify_file
-import os
+from config import prefs
 
 chromeOptions = webdriver.ChromeOptions()
-prefs = {"download.default_directory" : "C:\\Users\\jovin\\Documents\\Automatic-Music-Downloader-and-Tagger\\downloads"}
-chromeOptions.add_experimental_option("prefs",prefs)
+chromeOptions.add_experimental_option("prefs", prefs)
 chromeOptions.add_argument('headless')
 
 download_urls = []

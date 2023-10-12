@@ -12,12 +12,17 @@ from ytm_automator import scrape_urls, download_mp3
 
 from spotify_yt_scraper import find_playlist, scrape_song_info, search_youtube
 
-def clean_folder():
+def clean_folder(filename):
     if "downloads" in os.listdir():
+        print("\u001b[32mCleaning downloads...\u001b[0m")
         shutil.rmtree("downloads")
         os.mkdir("downloads")
         open("downloads/.placeholder", 'w').close()
         subprocess.check_call(["attrib","+H","downloads/.placeholder"])
+    
+    if not filename.isspace():
+        print(f"\u001b[32mCleaning {filename}...\u001b[0m")
+        open(f"{filename}", 'w').close()
 
 def download_audio(url):
     default_file = "downloads\\Video Not Available.mp4"
@@ -90,10 +95,10 @@ def modify_file(file_path, metadata):
 
 
 parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
-parser.add_argument("-c", "--clean", help="Set clean downloads folder to True", action="store_true")
-parser.add_argument("-f", "--file", help="Pass in text file of URLs", action="store_true")
+parser.add_argument("-c", "--clean", help="Option to clean downloads folder and passed urls file", nargs='?', type=str, const=" ")
+parser.add_argument("-f", "--file", help="Pass in text file of URLs (defaults to urls.txt)", nargs='?', type=str, const="urls.txt")
 parser.add_argument("-y", "--ytm", help="Use YouTubeToMP3 to download songs", action="store_true")
-parser.add_argument("-s", "--spotify", help="Scrape songs from Spotify", action="store_true")
+parser.add_argument("-s", "--spotify", help="Scrape songs from Spotify", nargs='?', type=str, const="new-songs")
 
 args = parser.parse_args()
 
@@ -101,13 +106,12 @@ if __name__ == "__main__":
     url_list = []
 
     if (args.clean):
-        print("\u001b[32mCleaning downloads...\u001b[0m")
-        clean_folder()
+        clean_folder(args.clean)
 
     # Read urls.txt by default
     if (args.file):
-        with open("urls.txt") as urls_file:
-            print("Reading URLs...")
+        with open(args.file) as urls_file:
+            print("\u001b[33mReading URLs...\u001b[0m")
             for line in urls_file.readlines():
                 url = line.replace("\n", "")
                 print(f"\t{url}")
@@ -115,7 +119,7 @@ if __name__ == "__main__":
                     url_list.append(url)
     
     if (args.spotify):
-        pl_new_songs = find_playlist("new-songs")
+        pl_new_songs = find_playlist(args.spotify)
         songs = scrape_song_info(pl_new_songs)
         print()
         url_list.extend(search_youtube(songs))
