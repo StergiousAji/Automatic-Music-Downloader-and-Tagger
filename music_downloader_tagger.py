@@ -25,7 +25,7 @@ def clean_folder(filename):
         open(f"{filename}", 'w').close()
 
 def download_audio(url):
-    default_file = "downloads\\Video Not Available.mp4"
+    default_file = os.path.join("downloads", "Video Not Available.mp4")
     out_file = default_file
     while os.path.relpath(out_file) == default_file:
         if os.path.exists(out_file):
@@ -34,6 +34,7 @@ def download_audio(url):
         out_file = ydl.streams.get_audio_only().download("downloads")
 
     audio_file = f"{out_file.split('.')[0]}.mp3"
+    print(f"Downloading \u001b[95m{os.path.basename(audio_file)}\u001b[0m")
     subprocess.run(['ffmpeg', '-i', out_file, '-b:a', '192K', audio_file, '-hide_banner', '-loglevel', 'quiet'])
     os.remove(out_file)
     return audio_file
@@ -56,12 +57,10 @@ def recognise_song(file_path):
         shazam = Shazam(mp3_file.read())
         recognised = next(shazam.recognizeSong())[1]
         
-        if "track" in recognised:
-            recognised = recognised["track"]
-        else:
-            print(f"\u001b[31mERROR\n{recognised}")
+        if "track" not in recognised:
             return
-        
+
+        recognised = recognised["track"]
         metadata['title'] = urllib.parse.unquote_plus(recognised["urlparams"]["{tracktitle}"])
         metadata['artist'] = urllib.parse.unquote_plus(recognised["urlparams"]["{trackartist}"])
         if "images" in recognised:
@@ -78,7 +77,7 @@ def validate_filename(filename):
 
 def modify_file(file_path, metadata):
     new_filename = validate_filename(f"{metadata['artist']} - {metadata['title']}")
-    new_filename = f"downloads\\{new_filename}"
+    new_filename = os.path.join("downloads", new_filename)
 
     if not os.path.exists(new_filename):
         os.rename(file_path, f"{new_filename}.mp3")
@@ -134,23 +133,23 @@ if __name__ == "__main__":
                 print("\u001b[31mInvalid URL submitted!\u001b[0m")
         
     # Download and modify metadata
-    print("\n\u001b[95mDownloading...\u001b[0m")
+    print()
     if (args.ytm):
         scrape_urls(url_list)
         download_mp3()
     else:
         for url in url_list:
-            audio_file_path = download_audio(url)
-            # audio_file_path = download_audio_YDL(url)
+            download_audio(url)
 
-    for filename in os.listdir("downloads"):
-        if filename.endswith(".mp3"):
-            song = music_tag.load_file(f"downloads\\{filename}")
-            if not song["tracktitle"]:
-                audio_file_path = f"downloads/{filename}"
-                metadata = recognise_song(audio_file_path)
-                if metadata:
-                    print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
-                    modify_file(audio_file_path, metadata)
-                else:
-                    print(f"Nope, Skipped! {audio_file_path}\u001b[0m")
+    print()
+    # Modify unmodified downloads in order of modified time
+    downloads = sorted([os.path.join("downloads", x) for x in os.listdir("downloads") if x.endswith(".mp3") or x.endswith(".m4a")], key=lambda x: os.path.getmtime(x))
+    for audio_file_path in downloads:
+        song = music_tag.load_file(audio_file_path)
+        if not song["tracktitle"]:
+            metadata = recognise_song(audio_file_path)
+            if metadata:
+                print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
+                modify_file(audio_file_path, metadata)
+            else:
+                print(f"Skipping \u001b[31m{os.path.basename(audio_file_path)}\u001b[0m")

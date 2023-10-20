@@ -3,7 +3,7 @@
 chromedriver.exe
 config.py
 spotify-dev.txt
-downloads/*.mp3
+downloads/*.m*
 
 # Python # 
 *.py[cod] 
