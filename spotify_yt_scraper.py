@@ -1,9 +1,5 @@
 import spotipy
 import spotipy.util as util
-import os
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 
 import pytube
 
@@ -35,14 +31,10 @@ def scrape_song_info(playlist):
         artist = song['track']['album']['artists'][0]['name']
         track = song['track']['name']
         duration = int(song['track']['duration_ms']) / 1000.0
-        songs.append({"name": f"{artist} {track}", "duration": duration})
-        print(f"{i+1}. {songs[i]['name']} ({seconds_to_time(duration)})")
+        songs.append({"artist": artist, "track": track, "name": f"{artist} {track}", "duration": duration})
+        print(f"{i+1}. {artist} - {track} ({seconds_to_time(duration)})")
     
     return songs
-
-
-chromeOptions = webdriver.ChromeOptions()
-chromeOptions.add_argument('headless')
 
 def write_url(url):
     with open("urls.txt", 'a') as urls_file:
@@ -52,15 +44,13 @@ def search_youtube(songs):
     url_list = []
     for song in songs:
         search = pytube.Search(f"{song['name']} audio")
+        print(f"\u001b[33m{song['artist']} - {song['track']}:\u001b[0m")
         for video in search.results:
-            driver = webdriver.Chrome(options=chromeOptions)
-            print(f"\u001b[32mSearching {video.watch_url}\u001b[0m")
-            driver.get(video.watch_url)
-            duration = driver.find_element(By.CLASS_NAME, "ytp-time-duration")
-            
-            if abs(time_to_seconds(duration.text) - song['duration']) < 3.5:
+            print(f"Searching \u001b[32m{video.watch_url}\u001b[0m")
+            if abs(video.length - song['duration']) < 3.5:
                 url_list.append(video.watch_url)
                 write_url(video.watch_url)
+                print()
                 break
     
     return url_list
