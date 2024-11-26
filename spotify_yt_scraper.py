@@ -1,7 +1,8 @@
 import spotipy
 import spotipy.util as util
 
-import pytube
+import pytubefix as pytube
+# import pytube
 
 from config import setup_spotify, username
 
@@ -48,6 +49,7 @@ def search_youtube(songs):
         for video in search.results:
             print(f"Searching \u001b[32m{video.watch_url}\u001b[0m")
             if abs(video.length - song['duration']) < 3.5:
+            # if abs(time_to_seconds(video.len) - song['duration']) < 3.5:
                 url_list.append(video.watch_url)
                 write_url(video.watch_url)
                 print()

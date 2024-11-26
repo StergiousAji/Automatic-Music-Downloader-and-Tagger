@@ -1,4 +1,6 @@
-import pytube, subprocess
+import pytubefix as pytube
+# import pytube
+import subprocess
 import os, shutil, argparse
 from ShazamAPI import Shazam
 import urllib

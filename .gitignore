@@ -1,6 +1,6 @@
 # My Files #
 .cache*
-chromedriver.exe
+*.exe
 config.py
 spotify-dev.txt
 downloads/*.m*
@@ -10,7 +10,7 @@ downloads/*.m*
 *$py.class 
 
 # Visual Studio Code # 
-.vscode/* 
+.vscode/
 !.vscode/settings.json 
 !.vscode/tasks.json 
 !.vscode/launch.json 
