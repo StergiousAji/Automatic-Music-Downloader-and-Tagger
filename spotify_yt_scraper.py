@@ -16,7 +16,7 @@ def find_playlist(playlist_name):
     playlists = spotify.current_user_playlists()
     while playlists:
         for playlist in playlists['items']:
-            if playlist['name'] == playlist_name:
+            if playlist and playlist['name'] == playlist_name:
                 return spotify.playlist_items(playlist_id=playlist['uri'])
 
 def seconds_to_time(seconds):
