@@ -12,18 +12,18 @@ import youtube_dl
 
 from ytm_automator import scrape_urls, download_mp3
 
-from spotify_yt_scraper import find_playlist, scrape_song_info, search_youtube
+from spotify_yt_scraper import find_playlist, scrape_song_info, search_ytmusic, RESET, GREEN, YELLOW, RED, MAGENTA, BLUE
 
 def clean_folder(filename):
     if "downloads" in os.listdir():
-        print("\u001b[32mCleaning downloads...\u001b[0m")
+        print(f"{GREEN}Cleaning downloads...{RESET}")
         shutil.rmtree("downloads")
         os.mkdir("downloads")
         open("downloads/.placeholder", 'w').close()
         subprocess.check_call(["attrib","+H","downloads/.placeholder"])
     
     if not filename.isspace():
-        print(f"\u001b[32mCleaning {filename}...\u001b[0m")
+        print(f"{GREEN}Cleaning {filename}...{RESET}")
         open(f"{filename}", 'w').close()
 
 def download_audio(url):
@@ -36,7 +36,7 @@ def download_audio(url):
         out_file = ydl.streams.get_audio_only().download("downloads")
 
     audio_file = f"{out_file.split('.')[0]}.mp3"
-    print(f"Downloading \u001b[95m{os.path.basename(audio_file)}\u001b[0m")
+    print(f"Downloading {MAGENTA}{os.path.basename(audio_file)}{RESET}")
     subprocess.run(['ffmpeg', '-i', out_file, '-b:a', '192K', audio_file, '-hide_banner', '-loglevel', 'quiet'])
     os.remove(out_file)
     return audio_file
@@ -92,7 +92,7 @@ def modify_file(file_path, metadata):
 
         song.save()
     else:
-        print(f"\u001b[31mFile '{new_filename}' already exists! Skipped\u001b[0m")
+        print(f"{RED}File '{new_filename}' already exists! Skipped{RESET}")
 
 
 parser = argparse.ArgumentParser(description="Program to download and tag mp3 audio files.")
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     # Read urls.txt by default
     if (args.file):
         with open(args.file) as urls_file:
-            print("\u001b[33mReading URLs...\u001b[0m")
+            print(f"{YELLOW}Reading URLs...{RESET}")
             for line in urls_file.readlines():
                 url = line.replace("\n", "")
                 print(f"\t{url}")
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         pl_new_songs = find_playlist(args.spotify)
         songs = scrape_song_info(pl_new_songs)
         print()
-        url_list.extend(search_youtube(songs))
+        url_list.extend(search_ytmusic(songs))
     else:
         while True:
             url = input("Enter a URL: ")
@@ -132,7 +132,7 @@ if __name__ == "__main__":
             if url.startswith("https://"):
                 url_list.append(url)
             else:
-                print("\u001b[31mInvalid URL submitted!\u001b[0m")
+                print(f"{RED}Invalid URL submitted!{RESET}")
         
     # Download and modify metadata
     print()
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         if not song["tracktitle"]:
             metadata = recognise_song(audio_file_path)
             if metadata:
-                print(f"Modifying \u001b[36m{metadata['artist']} - {metadata['title']}\u001b[0m")
+                print(f"Modifying {BLUE}{metadata['artist']} - {metadata['title']}{RESET}")
                 modify_file(audio_file_path, metadata)
             else:
-                print(f"Skipping \u001b[31m{os.path.basename(audio_file_path)}\u001b[0m")
+                print(f"Skipping {RED}{os.path.basename(audio_file_path)}{RESET}")
