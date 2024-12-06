@@ -12,7 +12,7 @@ import youtube_dl
 
 from ytm_automator import scrape_urls, download_mp3
 
-from spotify_yt_scraper import find_playlist, scrape_song_info, search_ytmusic, RESET, GREEN, YELLOW, RED, MAGENTA, BLUE
+from spotify_yt_scraper import find_playlist, scrape_song_info, search_ytmusic, manual_search, RESET, GREEN, YELLOW, RED, MAGENTA, BLUE
 
 def clean_folder(filename):
     if "downloads" in os.listdir():
@@ -100,6 +100,7 @@ parser.add_argument("-c", "--clean", help="Option to clean downloads folder and 
 parser.add_argument("-f", "--file", help="Pass in text file of URLs (defaults to urls.txt)", nargs='?', type=str, const="urls.txt")
 parser.add_argument("-y", "--ytm", help="Use YouTubeToMP3 to download songs", action="store_true")
 parser.add_argument("-s", "--spotify", help="Scrape songs from Spotify", nargs='?', type=str, const="new-songs")
+parser.add_argument("-m", "--manual_search", help="Manually search terms on YouTube Music", action="store_true")
 
 args = parser.parse_args()
 
@@ -124,6 +125,8 @@ if __name__ == "__main__":
         songs = scrape_song_info(pl_new_songs)
         print()
         url_list.extend(search_ytmusic(songs))
+    elif (args.manual_search):
+        url_list.extend(manual_search())
     else:
         while True:
             url = input("Enter a URL: ")
