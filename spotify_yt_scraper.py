@@ -63,14 +63,15 @@ def search_ytmusic(songs):
         search_results = ytmusic.search(f"{song['name']}")
         print(f"{YELLOW}{song['artist']} - {song['track']}:{RESET}")
         for result in search_results:
-            watch_url = get_yt_url(result['videoId'])
-            explicit_match = song['explicit'] == result['isExplicit'] if 'isExplicit' in result else True
-            print(f"Searching {GREEN}{watch_url}{RESET}")
-            if song['track'] == result['title'] and abs(result['duration_seconds'] - song['duration']) < 0.5 and explicit_match:
-                url_list.append(watch_url)
-                write_url(watch_url)
-                print()
-                break
+            if 'videoId' in result:
+                watch_url = get_yt_url(result['videoId'])
+                explicit_match = song['explicit'] == result['isExplicit'] if 'explicit' in song and 'isExplicit' in result else True
+                print(f"Searching {GREEN}{watch_url}{RESET}")
+                if abs(result['duration_seconds'] - song['duration']) < 1.5 and explicit_match:
+                    url_list.append(watch_url)
+                    write_url(watch_url)
+                    print()
+                    break
     
     return url_list
 

@@ -51,9 +51,10 @@ def download_mp3():
     print("Downloading...")
     with open("mp3_urls.txt", "r") as file:
         for url in file.readlines():
-            driver = webdriver.Chrome(options=chromeOptions)
-            driver.get(url)
-            time.sleep(15)
+            if not url.isspace():
+                driver = webdriver.Chrome(options=chromeOptions)
+                driver.get(url)
+                time.sleep(15)
 
 # scrape_urls()
 # download_mp3()
